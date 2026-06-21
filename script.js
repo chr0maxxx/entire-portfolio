@@ -1,9 +1,9 @@
 const CONFIG = {
   // Частицы
-  maxParticles: 250,
-  initialParticles: 150,
+  maxParticles: 200,
+  initialParticles: 100,
   particleSize: { min: 1, max: 3 },
-  particleSpeed: 1.4,
+  particleSpeed: 1.0,
   particleDecay: { min: 0.003, max: 0.012 },
 
   // Цвета (HSL)
@@ -17,7 +17,7 @@ const CONFIG = {
   connectionLineWidth: 1,
 
   // Генерация частиц
-  spawnRateAuto: 0.5,
+  spawnRateAuto: 0.3,
   spawnRateMouse: 0.3,
   particlesPerClick: 5,
 };
