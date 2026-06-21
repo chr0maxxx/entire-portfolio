@@ -4,214 +4,511 @@
   box-sizing: border-box;
 }
 
-body {
-  background: #0a0a1a;
-  min-height: 300vh;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+:root {
+  --bg-deep: #0f0f0f;
+  --bg-panel: #202020;
+  --green-bright: #5dd62c;
+  --green-dark: #337418;
+  --text: #f8f8f8;
+  --green-dim: rgba(93, 214, 44, 0.3);
 }
 
-#canvas {
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Fira Code", "Courier New", monospace;
+  background: var(--bg-deep);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* SCANLINE EFFECT */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 1000;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* TERMINAL WINDOW */
+.terminal {
+  max-width: 1400px;
+  margin: 2rem auto;
+  background: var(--bg-panel);
+  border: 1px solid var(--green-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow:
+    0 0 40px rgba(93, 214, 44, 0.1),
+    inset 0 0 80px rgba(0, 0, 0, 0.3);
+}
+
+.terminal-header {
+  background: var(--bg-deep);
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--green-dark);
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--green-dark);
+}
+.terminal-dot.red {
+  background: #ff5f56;
+  border-color: #ff5f56;
+}
+.terminal-dot.yellow {
+  background: #ffbd2e;
+  border-color: #ffbd2e;
+}
+.terminal-dot.green {
+  background: var(--green-bright);
+  border-color: var(--green-bright);
+}
+
+.terminal-title {
+  flex: 1;
+  text-align: center;
+  color: var(--green-dark);
+  font-size: 0.8rem;
+}
+
+/* TMUX-STYLE LAYOUT */
+.tmux-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-template-rows: auto auto;
+  gap: 1px;
+  background: var(--green-dark);
+}
+
+.tmux-pane {
+  background: var(--bg-panel);
+  padding: 1.5rem;
+  position: relative;
+  min-height: 200px;
+}
+
+.tmux-pane-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--green-dark);
+  color: var(--bg-deep);
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.pane-sidebar {
+  grid-row: 1 / 3;
+  border-right: 1px solid var(--green-dark);
+}
+
+.pane-main {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.pane-bottom {
+  grid-column: 2;
+  grid-row: 2;
+  border-top: 1px solid var(--green-dark);
+}
+
+/* PROMPT */
+.prompt {
+  color: var(--green-bright);
+  margin-bottom: 0.5rem;
+}
+.prompt::before {
+  content: "root@portfolio:~$ ";
+}
+
+.command {
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.output {
+  color: var(--text);
+  opacity: 0.9;
+  margin-bottom: 1.5rem;
+  white-space: pre-wrap;
+}
+
+.output .highlight {
+  color: var(--green-bright);
+}
+.output .dim {
+  color: var(--green-dark);
+}
+.output .comment {
+  color: #666;
+  font-style: italic;
+}
+
+/* ASCII ART */
+.ascii-art {
+  color: var(--green-bright);
+  font-size: 0.7rem;
+  line-height: 1.2;
+  margin: 1rem 0;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* TYPING EFFECT */
+.typing {
+  overflow: hidden;
+  border-right: 2px solid var(--green-bright);
+  white-space: nowrap;
+  animation:
+    typing 3s steps(40) forwards,
+    blink 1s step-end infinite;
+  max-width: 0;
+}
+
+@keyframes typing {
+  from {
+    max-width: 0;
+  }
+  to {
+    max-width: 100%;
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+
+/* NAVIGATION AS COMMANDS */
+.nav-commands {
+  list-style: none;
+  margin: 1rem 0;
+}
+
+.nav-commands li {
+  padding: 0.5rem 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 2px solid transparent;
+  padding-left: 0.5rem;
+}
+
+.nav-commands li:hover {
+  background: rgba(93, 214, 44, 0.1);
+  border-left-color: var(--green-bright);
+  color: var(--green-bright);
+}
+
+.nav-commands li::before {
+  content: "> ";
+  color: var(--green-dark);
+}
+
+.nav-commands li:hover::before {
+  color: var(--green-bright);
+}
+
+/* PROJECTS AS LS OUTPUT */
+.ls-output {
+  font-family: "Fira Code", monospace;
+  margin: 1rem 0;
+}
+
+.ls-line {
+  display: grid;
+  grid-template-columns: 100px 80px 100px 1fr;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(51, 116, 24, 0.3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ls-line:hover {
+  background: rgba(93, 214, 44, 0.1);
+  color: var(--green-bright);
+}
+
+.ls-perms {
+  color: var(--green-dark);
+}
+.ls-size {
+  color: var(--green-dark);
+  text-align: right;
+}
+.ls-date {
+  color: var(--green-dark);
+}
+.ls-name {
+  color: var(--green-bright);
+  font-weight: bold;
+}
+
+/* SKILLS AS PROGRESS BARS */
+.skill-bar {
+  margin: 0.8rem 0;
+}
+
+.skill-name {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.skill-track {
+  height: 12px;
+  background: var(--bg-deep);
+  border: 1px solid var(--green-dark);
+  position: relative;
+  overflow: hidden;
+}
+
+.skill-fill {
+  height: 100%;
+  background: var(--green-bright);
+  position: relative;
+  transition: width 1.5s ease;
+  width: 0;
+}
+
+.skill-fill::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--text);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* INTERACTIVE TERMINAL */
+.interactive-terminal {
+  background: var(--bg-deep);
+  border: 1px solid var(--green-dark);
+  border-radius: 4px;
+  padding: 1rem;
+  margin: 1rem 0;
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.terminal-input-line {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.terminal-input-line .prompt-text {
+  color: var(--green-bright);
+  margin-right: 0.5rem;
+  white-space: nowrap;
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: "Fira Code", monospace;
+  font-size: 14px;
+  outline: none;
+  caret-color: var(--green-bright);
+}
+
+.terminal-history {
+  margin-bottom: 0.5rem;
+}
+
+.terminal-history .cmd {
+  color: var(--text);
+}
+.terminal-history .out {
+  color: var(--green-bright);
+  margin-left: 1rem;
+}
+
+/* CONTACT CARDS */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.contact-card {
+  background: var(--bg-deep);
+  border: 1px solid var(--green-dark);
+  padding: 1rem;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.contact-card:hover {
+  border-color: var(--green-bright);
+  box-shadow: 0 0 20px rgba(93, 214, 44, 0.2);
+  transform: translateY(-2px);
+}
+
+.contact-label {
+  color: var(--green-dark);
+  font-size: 0.8rem;
+  margin-bottom: 0.3rem;
+}
+
+.contact-value {
+  color: var(--green-bright);
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+/* STATUS BAR */
+.status-bar {
+  background: var(--green-dark);
+  color: var(--bg-deep);
+  padding: 0.3rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* GLITCH EFFECT */
+.glitch {
+  position: relative;
+  animation: glitch 3s infinite;
+}
+
+@keyframes glitch {
+  0%,
+  90%,
+  100% {
+    transform: translate(0);
+  }
+  92% {
+    transform: translate(-2px, 1px);
+  }
+  94% {
+    transform: translate(2px, -1px);
+  }
+  96% {
+    transform: translate(-1px, -1px);
+  }
+  98% {
+    transform: translate(1px, 1px);
+  }
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .tmux-layout {
+    grid-template-columns: 1fr;
+  }
+  .pane-sidebar {
+    grid-row: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--green-dark);
+  }
+  .pane-main,
+  .pane-bottom {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .ls-line {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+  .ascii-art {
+    font-size: 0.5rem;
+  }
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--green-dark);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green-bright);
+}
+
+/* SECTIONS */
+.section {
+  margin: 3rem 0;
+  padding: 2rem;
+  background: var(--bg-panel);
+  border: 1px solid var(--green-dark);
+  border-radius: 4px;
+}
+
+.section-title {
+  color: var(--green-bright);
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--green-dark);
+  padding-bottom: 0.5rem;
+}
+
+/* MATRIX RAIN CANVAS */
+#matrix-canvas {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 0;
+  z-index: -1;
+  opacity: 0.15;
 }
-
-/* Базовое стекло */
-.glass {
-  position: relative;
-  z-index: 1;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 36px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  color: white;
-}
-
-/* Главная подложка */
-.glass-main {
-  margin: 80px;
-  min-height: calc(100vh - 160px);
-  padding: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* --- Стили карточки проекта --- */
-.project-card {
-  width: 100%;
-  max-width: 1200px;
-  padding: 50px;
-  border-radius: 24px;
-}
-
-.project-header {
-  margin-bottom: 50px;
-}
-
-.project-header h2 {
-  font-size: 2.5rem;
-  margin-bottom: 15px;
-  font-weight: 600;
-}
-
-.project-header p {
-  font-size: 1.1rem;
-  opacity: 0.7;
-  max-width: 600px;
-  line-height: 1.5;
-}
-
-.project-content {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 60px;
-  align-items: center;
-}
-
-/* Список фич */
-.project-features ul {
-  list-style: none;
-}
-
-.feature-item {
-  font-size: 16px;
-  padding: 15px 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  opacity: 0.6;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-}
-
-.feature-item::before {
-  content: "—";
-  margin-right: 15px;
-  opacity: 0.5;
-  transition: all 0.3s ease;
-}
-
-.feature-item:hover {
-  opacity: 1;
-}
-
-.feature-item.active {
-  font-size: 20px;
-  opacity: 1;
-  padding-left: 10px;
-  font-weight: 500;
-}
-
-.feature-item.active::before {
-  opacity: 1;
-  color: #00d2ff;
-}
-
-/* Обёртка слайдера + точки */
-.project-slider-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
-}
-
-/* Слайдер */
-.project-slider {
-  position: relative;
-  width: 100%;
-  max-width: 720px;
-  aspect-ratio: 3 / 2;
-  border-radius: 16px;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.slider-track {
-  display: flex;
-  height: 100%;
-  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.slide {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-/* Точки под слайдером */
-.slider-dots {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.dot.active {
-  background: white;
-  transform: scale(1.3);
-}
-
-/* Визуальное отображение паузы */
-.project-slider.paused {
-  box-shadow: 0 0 25px rgba(0, 210, 255, 0.3);
-  transition: box-shadow 0.3s ease;
-}
-
-/* Прогрессбар под активным пунктом */
-.feature-item {
-    position: relative;
-    overflow: hidden;
-}
-
-.progress-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    background: linear-gradient(to right, #00d2ff, #0099ff);
-    width: 100%;
-    transform-origin: left;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.feature-item.active .progress-bar {
-    opacity: 1;
-    animation: progressShrink var(--progress-duration, 4s) linear forwards;
-}
-
-.feature-item.active.paused .progress-bar {
-    animation-play-state: paused;
-}
-
-@keyframes progressShrink {
-    from {
-        transform: scaleX(1);
-    }
-    to {
-        transform: scaleX(0);
-    }
-}
-body.debug * {
-    outline: 1px dashed rgba(255, 255, 255, 0.2) !important;
-}
-body.debug .glass       { outline-color: rgba(0, 210, 255, 0.4) !important; }
-body.debug .project-card { outline-color: rgba(255, 100, 100, 0.4) !important; }
-body.debug .slide        { outline-color: rgba(100, 255, 100, 0.4) !important; }
-body.debug .feature-item { outline-color: rgba(255, 255, 0, 0.4) !important; }
-body.debug .dot          { outline-color: rgba(255, 100, 255, 0.4) !important; }

@@ -1,297 +1,290 @@
+// ============================================
+// КОНФИГУРАЦИЯ
+// ============================================
 const CONFIG = {
-  // Частицы
-  maxParticles: 200,
-  initialParticles: 100,
-  particleSize: { min: 1, max: 3 },
-  particleSpeed: 1.0,
-  particleDecay: { min: 0.003, max: 0.012 },
-
-  // Цвета (HSL)
-  hueRange: 360,
-  saturation: 80,
-  lightness: 70,
-
-  // Связи между частицами
-  connectionDistance: 200,
-  connectionAlpha: 0.5,
-  connectionLineWidth: 1,
-
-  // Генерация частиц
-  spawnRateAuto: 0.3,
-  spawnRateMouse: 0.3,
-  particlesPerClick: 5,
+  matrix: {
+    chars:
+      "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF",
+    fontSize: 14,
+    speed: 50,
+    opacity: 0.05,
+  },
+  glitchInterval: 5000,
+  timeUpdateInterval: 1000,
 };
 
-const canvas = document.getElementById("canvas");
+// ============================================
+// ДАННЫЕ ПРОЕКТОВ
+// ============================================
+const projects = [
+  {
+    name: "fintech-dashboard",
+    desc: "Аналитическая панель для финансовой компании",
+    tech: "React, TypeScript, Node.js, PostgreSQL",
+    features:
+      "• Real-time данные\n• Интерактивные графики\n• Экспорт отчётов\n• Ролевая система",
+  },
+  {
+    name: "ecommerce-platform",
+    desc: "Интернет-магазин с полным функционалом",
+    tech: "Vue.js, Firebase, Stripe API",
+    features:
+      "• Каталог товаров\n• Корзина и оплата\n• Система отзывов\n• Админ-панель",
+  },
+  {
+    name: "saas-landing",
+    desc: "Продающий лендинг для SaaS-продукта",
+    tech: "Next.js, Tailwind CSS, Prisma",
+    features:
+      "• A/B тестирование\n• CRM интеграция\n• Анимации при скролле\n• SEO оптимизация",
+  },
+  {
+    name: "3d-portfolio",
+    desc: "Интерактивное портфолио с 3D-эффектами",
+    tech: "React, Three.js, WebGL",
+    features:
+      "• 3D визуализация\n• WebGL анимации\n• Иммерсивный опыт\n• Оптимизация",
+  },
+  {
+    name: "crm-system",
+    desc: "Система управления клиентами",
+    tech: "React, Node.js, MongoDB, Socket.io",
+    features:
+      "• Управление контактами\n• Воронка продаж\n• Автоматизация\n• Аналитика",
+  },
+];
+
+// ============================================
+// MATRIX RAIN
+// ============================================
+const canvas = document.getElementById("matrix-canvas");
 const ctx = canvas.getContext("2d");
 
-let particles = [];
-
-class Particle {
-  constructor(x, y) {
-    this.x = x || Math.random() * canvas.width;
-    this.y = y || Math.random() * canvas.height;
-    this.vx = (Math.random() - 0.5) * CONFIG.particleSpeed;
-    this.vy = (Math.random() - 0.5) * CONFIG.particleSpeed;
-    this.life = 1.0;
-    this.decay =
-      Math.random() * (CONFIG.particleDecay.max - CONFIG.particleDecay.min) +
-      CONFIG.particleDecay.min;
-    this.size =
-      Math.random() * (CONFIG.particleSize.max - CONFIG.particleSize.min) +
-      CONFIG.particleSize.min;
-    this.hue = Math.random() * CONFIG.hueRange;
-  }
-
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.life -= this.decay;
-
-    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-  }
-
-  draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fillStyle = `hsla(${this.hue}, ${CONFIG.saturation}%, ${CONFIG.lightness}%, ${this.life})`;
-    ctx.fill();
-  }
-}
-
-function drawConnections() {
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const p1 = particles[i];
-      const p2 = particles[j];
-
-      const dx = p1.x - p2.x;
-      const dy = p1.y - p2.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < CONFIG.connectionDistance) {
-        const alpha =
-          (1 - distance / CONFIG.connectionDistance) *
-          p1.life *
-          p2.life *
-          CONFIG.connectionAlpha;
-
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.strokeStyle = `hsla(${(p1.hue + p2.hue) / 2}, ${CONFIG.saturation}%, ${CONFIG.lightness}%, ${alpha})`;
-        ctx.lineWidth = CONFIG.connectionLineWidth;
-        ctx.stroke();
-      }
-    }
-  }
-}
-
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  if (
-    Math.random() < CONFIG.spawnRateAuto &&
-    particles.length < CONFIG.maxParticles
-  ) {
-    particles.push(new Particle());
-  }
-
-  for (let i = particles.length - 1; i >= 0; i--) {
-    particles[i].update();
-    particles[i].draw();
-
-    if (particles[i].life <= 0) {
-      particles.splice(i, 1);
-    }
-  }
-
-  drawConnections();
-  requestAnimationFrame(animate);
-}
-
-function resize() {
+function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
-function init() {
-  resize();
-  for (let i = 0; i < CONFIG.initialParticles; i++) {
-    particles.push(new Particle());
+const columns = Math.floor(canvas.width / CONFIG.matrix.fontSize);
+const drops = Array(columns).fill(1);
+
+function drawMatrix() {
+  ctx.fillStyle = `rgba(15, 15, 15, ${CONFIG.matrix.opacity})`;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#5DD62C";
+  ctx.font = CONFIG.matrix.fontSize + "px monospace";
+
+  for (let i = 0; i < drops.length; i++) {
+    const text =
+      CONFIG.matrix.chars[
+        Math.floor(Math.random() * CONFIG.matrix.chars.length)
+      ];
+    ctx.fillText(
+      text,
+      i * CONFIG.matrix.fontSize,
+      drops[i] * CONFIG.matrix.fontSize,
+    );
+
+    if (
+      drops[i] * CONFIG.matrix.fontSize > canvas.height &&
+      Math.random() > 0.975
+    ) {
+      drops[i] = 0;
+    }
+    drops[i]++;
   }
 }
 
-// Клики работают даже через контент
-window.addEventListener("click", (e) => {
-  for (let i = 0; i < CONFIG.particlesPerClick; i++) {
-    particles.push(new Particle(e.clientX, e.clientY));
-  }
-});
-
-// Движение мыши тоже ловится везде
-window.addEventListener("mousemove", (e) => {
-  if (Math.random() < CONFIG.spawnRateMouse) {
-    particles.push(new Particle(e.clientX, e.clientY));
-  }
-});
-
-window.addEventListener("resize", resize);
-
-init();
-animate();
+setInterval(drawMatrix, CONFIG.matrix.speed);
 
 // ============================================
-// ЛОГИКА КАРТОЧКИ ПРОЕКТА
+// ОБНОВЛЕНИЕ ВРЕМЕНИ
 // ============================================
+function updateTime() {
+  const now = new Date();
+  const timeStr = now.toLocaleString("ru-RU", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  document.getElementById("current-time").textContent = timeStr;
+  document.getElementById("status-time").textContent = timeStr;
+}
+updateTime();
+setInterval(updateTime, CONFIG.timeUpdateInterval);
 
-const projectData = [
-    { feature: "Адаптивный дизайн", image: "assets/images/screen1.png" },
-    { feature: "Динамичный таймлайн", image: "assets/images/screen2.png" },
-    { feature: "Красивые градиенты", image: "assets/images/screen3.png" },
-    { feature: "Современные стили", image: "assets/images/screen4.png" }
-];
+// ============================================
+// НАВИГАЦИЯ
+// ============================================
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.style.boxShadow = "0 0 30px rgba(93,214,44,0.3)";
+    setTimeout(() => {
+      el.style.boxShadow = "";
+    }, 1500);
+  }
+}
 
-let currentIndex = 0;
-let isPaused = false;
-let animationEndHandler = null;
-const AUTO_PLAY_DELAY = 4000;
-
-document.addEventListener('DOMContentLoaded', () => {
-    const featuresList = document.getElementById('features-list');
-    const sliderTrack = document.getElementById('slider-track');
-    const sliderDots = document.getElementById('slider-dots');
-    const projectSlider = document.getElementById('project-slider');
-
-    if (!featuresList || !sliderTrack || !sliderDots || !projectSlider) {
-        console.error('Элементы не найдены');
-        return;
-    }
-
-    // Устанавливаем длительность анимации через CSS-переменную
-    document.documentElement.style.setProperty('--progress-duration', `${AUTO_PLAY_DELAY}ms`);
-
-    // Инициализация
-    projectData.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.className = 'feature-item';
-        li.textContent = item.feature;
-        
-        const progressBar = document.createElement('div');
-        progressBar.className = 'progress-bar';
-        li.appendChild(progressBar);
-        
-        li.addEventListener('click', () => goToSlide(index));
-        li.addEventListener('mouseenter', checkShouldPause);
-        li.addEventListener('mouseleave', checkShouldPause);
-        featuresList.appendChild(li);
-
-        const img = document.createElement('img');
-        img.className = 'slide';
-        img.src = item.image;
-        img.alt = item.feature;
-        sliderTrack.appendChild(img);
-
-        const dot = document.createElement('div');
-        dot.className = 'dot';
-        dot.addEventListener('click', () => goToSlide(index));
-        dot.addEventListener('mouseenter', checkShouldPause);
-        dot.addEventListener('mouseleave', checkShouldPause);
-        sliderDots.appendChild(dot);
+// ============================================
+// АНИМАЦИЯ SKILL BARS
+// ============================================
+const skillObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const fills = entry.target.querySelectorAll(".skill-fill");
+        fills.forEach((fill) => {
+          const width = fill.getAttribute("data-width");
+          setTimeout(() => {
+            fill.style.width = width + "%";
+          }, 200);
+        });
+        skillObserver.unobserve(entry.target);
+      }
     });
+  },
+  { threshold: 0.3 },
+);
 
-    projectSlider.addEventListener('mouseenter', checkShouldPause);
-    projectSlider.addEventListener('mouseleave', checkShouldPause);
-
-    // Запуск прогрессбара на активном пункте
-    function startProgressBar() {
-        const activeFeature = featuresList.querySelector('.feature-item.active');
-        if (!activeFeature) return;
-        
-        const progressBar = activeFeature.querySelector('.progress-bar');
-        
-        // Удаляем старый обработчик
-        if (animationEndHandler) {
-            progressBar.removeEventListener('animationend', animationEndHandler);
-        }
-        
-        // Сброс и перезапуск анимации
-        progressBar.style.animation = 'none';
-        progressBar.offsetHeight; // принудительный reflow
-        progressBar.style.animation = '';
-        
-        // Новый обработчик: когда анимация закончилась — переключаем
-        animationEndHandler = () => {
-            nextSlide();
-        };
-        progressBar.addEventListener('animationend', animationEndHandler);
-    }
-
-    // Проверка условий паузы
-    function checkShouldPause() {
-        const activeFeature = featuresList.querySelector('.feature-item.active');
-        const activeDot = sliderDots.querySelector('.dot.active');
-        
-        const shouldPause = 
-            (activeFeature && activeFeature.matches(':hover')) ||
-            (activeDot && activeDot.matches(':hover')) ||
-            projectSlider.matches(':hover');
-        
-        if (shouldPause && !isPaused) {
-            isPaused = true;
-            if (activeFeature) {
-                activeFeature.classList.add('paused');
-                const progressBar = activeFeature.querySelector('.progress-bar');
-                progressBar.style.animationPlayState = 'paused';
-            }
-        } else if (!shouldPause && isPaused) {
-            isPaused = false;
-            if (activeFeature) {
-                activeFeature.classList.remove('paused');
-                const progressBar = activeFeature.querySelector('.progress-bar');
-                progressBar.style.animationPlayState = 'running';
-            }
-        }
-    }
-
-    // Обновление карточки
-    function updateCard() {
-        const features = featuresList.querySelectorAll('.feature-item');
-        features.forEach((item, index) => {
-            item.classList.toggle('active', index === currentIndex);
-            item.classList.remove('paused');
-        });
-
-        sliderTrack.style.transform = `translateX(-${currentIndex * 100}%)`;
-        
-        const slides = sliderTrack.querySelectorAll('.slide');
-        slides.forEach((slide, index) => {
-            slide.classList.toggle('active', index === currentIndex);
-        });
-
-        const dots = sliderDots.querySelectorAll('.dot');
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === currentIndex);
-        });
-
-        // Запускаем прогрессбар для нового активного пункта
-        startProgressBar();
-        
-        // Сбрасываем флаг паузы
-        isPaused = false;
-    }
-
-    function goToSlide(index) {
-        currentIndex = index;
-        updateCard();
-    }
-
-    function nextSlide() {
-        currentIndex = (currentIndex + 1) % projectData.length;
-        updateCard();
-    }
-
-    // Первый рендер
-    updateCard();
+document.querySelectorAll(".skill-bar").forEach((bar) => {
+  skillObserver.observe(bar);
 });
+
+// ============================================
+// ПРОЕКТЫ
+// ============================================
+function showProject(index) {
+  const p = projects[index];
+  document.getElementById("project-details").innerHTML = `
+<span class="highlight"># ${p.name}</span>
+
+${p.desc}
+
+<span class="highlight">Технологии:</span> ${p.tech}
+
+<span class="highlight">Возможности:</span>
+${p.features}
+
+<span class="dim">Нажмите на другой проект для просмотра</span>
+    `;
+}
+
+// ============================================
+// ИНТЕРАКТИВНЫЙ ТЕРМИНАЛ
+// ============================================
+const terminalInput = document.getElementById("terminal-input");
+const terminalHistory = document.getElementById("terminal-history");
+const interactiveTerminal = document.getElementById("interactive-terminal");
+
+const commands = {
+  help: () => `Доступные команды:
+  about     - информация обо мне
+  skills    - список навыков
+  projects  - список проектов
+  contact   - контактная информация
+  date      - текущая дата и время
+  whoami    - кто я
+  clear     - очистить терминал
+  help      - показать эту справку`,
+
+  about: () => `Я веб-разработчик с 5-летним опытом.
+Специализируюсь на frontend и fullstack разработке.
+Создаю современные, быстрые и красивые веб-приложения.`,
+
+  skills: () => `JavaScript/TypeScript: ███████████████████░ 95%
+React/Next.js:        ██████████████████░░ 90%
+Node.js/Express:      █████████████████░░░ 85%
+Python/Django:        ████████████████░░░░ 80%
+PostgreSQL/MongoDB:   ███████████████░░░░░ 75%
+Docker/DevOps:        ██████████████░░░░░░ 70%`,
+
+  projects: () => `1. fintech-dashboard    - Аналитическая панель
+2. ecommerce-platform   - Интернет-магазин
+3. saas-landing         - Продающий лендинг
+4. 3d-portfolio         - 3D портфолио
+5. crm-system           - CRM система
+
+Введите "project N" для деталей (N от 1 до 5)`,
+
+  contact: () => `Email:     dev@portfolio.ru
+Telegram:  @webdev_alex
+GitHub:    github.com/alexdev
+Location:  Moscow, Russia`,
+
+  date: () => new Date().toLocaleString("ru-RU"),
+
+  whoami: () => "root (веб-разработчик)",
+
+  clear: () => {
+    terminalHistory.innerHTML = "";
+    return null;
+  },
+};
+
+terminalInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const cmd = terminalInput.value.trim().toLowerCase();
+    terminalInput.value = "";
+
+    if (cmd) {
+      // Показываем введённую команду
+      const cmdLine = document.createElement("div");
+      cmdLine.className = "terminal-history";
+      cmdLine.innerHTML = `<span class="cmd">root@portfolio:~$ ${cmd}</span>`;
+      terminalHistory.appendChild(cmdLine);
+
+      let output = "";
+
+      if (cmd.startsWith("project ")) {
+        const num = parseInt(cmd.split(" ")[1]);
+        if (num >= 1 && num <= projects.length) {
+          const p = projects[num - 1];
+          output = `${p.name}\n${p.desc}\nТехнологии: ${p.tech}\n\n${p.features}`;
+        } else {
+          output = `Ошибка: проект не найден. Используйте числа 1-${projects.length}`;
+        }
+      } else if (commands[cmd]) {
+        output = commands[cmd]();
+      } else {
+        output = `bash: ${cmd}: command not found. Введите "help" для списка команд.`;
+      }
+
+      if (output !== null) {
+        const outLine = document.createElement("div");
+        outLine.className = "terminal-history";
+        outLine.innerHTML = `<span class="out">${output.replace(/\n/g, "<br>")}</span>`;
+        terminalHistory.appendChild(outLine);
+      }
+
+      interactiveTerminal.scrollTop = interactiveTerminal.scrollHeight;
+    }
+  }
+});
+
+interactiveTerminal.addEventListener("click", () => {
+  terminalInput.focus();
+});
+
+setTimeout(() => {
+  terminalInput.focus();
+}, 1000);
+
+// ============================================
+// GLITCH ЭФФЕКТ
+// ============================================
+setInterval(() => {
+  const elements = document.querySelectorAll(".tmux-pane-header");
+  const randomEl = elements[Math.floor(Math.random() * elements.length)];
+  randomEl.classList.add("glitch");
+  setTimeout(() => {
+    randomEl.classList.remove("glitch");
+  }, 200);
+}, CONFIG.glitchInterval);

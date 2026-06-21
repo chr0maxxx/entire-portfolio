@@ -1,35 +1,309 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Constellation Background</title>
+    <title>root@portfolio:~#</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fontsource-fira-code@5.0.0/index.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="debug">
-    <canvas id="canvas"></canvas>
-    <div class="glass glass-main">
-        <div class="project-card glass" id="project-card">
-            
-            <div class="project-header">
-                <h2>Название test</h2>
-                <p>Краткое описание проекта, умные продающие слова, которые цепляют с первых секунд.</p>
-            </div>
-            <div class="project-content">
-                <div class="project-features">
-                    <ul id="features-list"></ul>
+
+<body>
+
+    <canvas id="matrix-canvas"></canvas>
+
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <div class="terminal-title">root@portfolio — bash — 120×40</div>
+        </div>
+
+        <div class="tmux-layout">
+            <!-- SIDEBAR -->
+            <div class="tmux-pane pane-sidebar">
+                <div class="tmux-pane-header">[0] nav</div>
+
+                <div class="ascii-art">
+                    ██████╗ ██████╗ ██████╗ ███████╗
+                    ██╔════╝██╔═══██╗██╔══██╗██╔════╝
+                    ██║ ██║ ██║██║ ██║█████╗
+                    ██║ ██║ ██║██║ ██║██╔══╝
+                    ╚██████╗╚██████╔╝██████╔╝███████╗
+                    ╚═════╝ ╚═════╝ ╚═════╝ ══════╝
                 </div>
 
-                <div class="project-slider-wrapper">
-                    <div class="project-slider" id="project-slider">
-                        <div class="slider-track" id="slider-track"></div>
+                <div class="prompt">cat menu.txt</div>
+                <ul class="nav-commands">
+                    <li onclick="scrollToSection('about')">./about.sh</li>
+                    <li onclick="scrollToSection('skills')">./skills.sh</li>
+                    <li onclick="scrollToSection('projects')">ls -la projects/</li>
+                    <li onclick="scrollToSection('experience')">cat experience.log</li>
+                    <li onclick="scrollToSection('contact')">ssh contact@me</li>
+                    <li onclick="scrollToSection('terminal')">bash --interactive</li>
+                </ul>
+
+                <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--green-dark);">
+                    <div class="prompt">uptime</div>
+                    <div class="output">
+                        <span class="highlight">5 years</span> of coding<br>
+                        <span class="dim">47 projects</span> completed<br>
+                        <span class="dim">32 clients</span> satisfied
                     </div>
-                    <div class="slider-dots" id="slider-dots"></div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <div class="prompt">date</div>
+                    <div class="output" id="current-time"></div>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="tmux-pane pane-main">
+                <div class="tmux-pane-header">[1] main</div>
+
+                <div class="prompt">cat welcome.txt</div>
+                <div class="output">
+                    Привет! Я <span class="highlight">веб-разработчик</span> с 5-летним опытом.
+                    Создаю современные, быстрые и красивые веб-приложения.
+                    Специализируюсь на <span class="highlight">frontend</span> и <span
+                        class="highlight">fullstack</span> разработке.
+                </div>
+
+                <div class="prompt">./run_portfolio.sh --verbose</div>
+                <div class="output">
+                    <span class="dim">[INFO]</span> Loading modules...<br>
+                    <span class="dim">[INFO]</span> Initializing skills...<br>
+                    <span class="dim">[OK]</span> Portfolio ready. Welcome!
+                </div>
+
+                <div id="about" class="section">
+                    <div class="section-title">// ABOUT_ME</div>
+                    <div class="prompt">cat about.md</div>
+                    <div class="output">
+                        <span class="highlight"># Обо мне</span><br><br>
+                        Меня зовут <span class="highlight">Алексей</span>. Я fullstack-разработчик,
+                        увлечённый созданием цифровых продуктов.<br><br>
+                        <span class="highlight">## Что я делаю:</span><br>
+                        • Разрабатываю веб-приложения на React, Vue, Node.js<br>
+                        • Создаю адаптивные интерфейсы с анимациями<br>
+                        • Оптимизирую производительность и SEO<br>
+                        • Работаю с базами данных и API<br><br>
+                        <span class="highlight">## Мой подход:</span><br>
+                        Чистый код, современные технологии, внимание к деталям.
+                        Каждый проект — это решение реальной задачи бизнеса.
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTTOM PANE -->
+            <div class="tmux-pane pane-bottom">
+                <div class="tmux-pane-header">[2] output</div>
+
+                <div id="skills" class="section" style="margin-top: 0;">
+                    <div class="section-title">// SKILLS_MATRIX</div>
+                    <div class="prompt">./show_skills.sh</div>
+
+                    <div class="skill-bar">
+                        <div class="skill-name">
+                            <span>JavaScript / TypeScript</span>
+                            <span class="highlight">95%</span>
+                        </div>
+                        <div class="skill-track">
+                            <div class="skill-fill" data-width="95"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-bar">
+                        <div class="skill-name">
+                            <span>React / Next.js</span>
+                            <span class="highlight">90%</span>
+                        </div>
+                        <div class="skill-track">
+                            <div class="skill-fill" data-width="90"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-bar">
+                        <div class="skill-name">
+                            <span>Node.js / Express</span>
+                            <span class="highlight">85%</span>
+                        </div>
+                        <div class="skill-track">
+                            <div class="skill-fill" data-width="85"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-bar">
+                        <div class="skill-name">
+                            <span>Python / Django</span>
+                            <span class="highlight">80%</span>
+                        </div>
+                        <div class="skill-track">
+                            <div class="skill-fill" data-width="80"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-bar">
+                        <div class="skill-name">
+                            <span>PostgreSQL / MongoDB</span>
+                            <span class="highlight">75%</span>
+                        </div>
+                        <div class="skill-track">
+                            <div class="skill-fill" data-width="75"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-bar">
+                        <div class="skill-name">
+                            <span>Docker / DevOps</span>
+                            <span class="highlight">70%</span>
+                        </div>
+                        <div class="skill-track">
+                            <div class="skill-fill" data-width="70"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- PROJECTS SECTION -->
+        <div class="tmux-pane" id="projects" style="border-top: 1px solid var(--green-dark);">
+            <div class="tmux-pane-header">[3] projects</div>
+
+            <div class="section-title">// PROJECTS_DIRECTORY</div>
+            <div class="prompt">ls -la ~/projects/</div>
+
+            <div class="ls-output">
+                <div class="ls-line" onclick="showProject(0)">
+                    <span class="ls-perms">drwxr-xr-x</span>
+                    <span class="ls-size">4.2K</span>
+                    <span class="ls-date">2024-01-15</span>
+                    <span class="ls-name">fintech-dashboard/</span>
+                </div>
+                <div class="ls-line" onclick="showProject(1)">
+                    <span class="ls-perms">drwxr-xr-x</span>
+                    <span class="ls-size">8.7K</span>
+                    <span class="ls-date">2024-02-20</span>
+                    <span class="ls-name">ecommerce-platform/</span>
+                </div>
+                <div class="ls-line" onclick="showProject(2)">
+                    <span class="ls-perms">drwxr-xr-x</span>
+                    <span class="ls-size">2.1K</span>
+                    <span class="ls-date">2024-03-10</span>
+                    <span class="ls-name">saas-landing/</span>
+                </div>
+                <div class="ls-line" onclick="showProject(3)">
+                    <span class="ls-perms">drwxr-xr-x</span>
+                    <span class="ls-size">6.5K</span>
+                    <span class="ls-date">2024-04-05</span>
+                    <span class="ls-name">3d-portfolio/</span>
+                </div>
+                <div class="ls-line" onclick="showProject(4)">
+                    <span class="ls-perms">drwxr-xr-x</span>
+                    <span class="ls-size">3.8K</span>
+                    <span class="ls-date">2024-05-12</span>
+                    <span class="ls-name">crm-system/</span>
+                </div>
+            </div>
+
+            <div class="prompt">cat projects/README.md</div>
+            <div class="output" id="project-details">
+                <span class="comment"># Выберите проект для просмотра деталей</span><br>
+                <span class="dim">Кликните на название проекта выше</span>
+            </div>
+        </div>
+
+        <!-- EXPERIENCE -->
+        <div class="tmux-pane" id="experience" style="border-top: 1px solid var(--green-dark);">
+            <div class="tmux-pane-header">[4] experience</div>
+
+            <div class="section-title">// WORK_HISTORY</div>
+            <div class="prompt">cat experience.log | tail -20</div>
+
+            <div class="output">
+                <span class="highlight">[2024]</span> Senior Fullstack Developer @ TechCorp<br>
+                &nbsp;&nbsp;• Разработка микросервисной архитектуры<br>
+                &nbsp;&nbsp;• Управление командой из 5 разработчиков<br>
+                &nbsp;&nbsp;• Внедрение CI/CD процессов<br><br>
+
+                <span class="highlight">[2022]</span> Frontend Developer @ StartupXYZ<br>
+                &nbsp;&nbsp;• Создание SPA на React и Vue.js<br>
+                &nbsp;&nbsp;• Оптимизация производительности (Lighthouse 95+)<br>
+                &nbsp;&nbsp;• Интеграция с REST и GraphQL API<br><br>
+
+                <span class="highlight">[2020]</span> Junior Developer @ WebStudio<br>
+                &nbsp;&nbsp;• Вёрстка адаптивных сайтов<br>
+                &nbsp;&nbsp;• Работа с WordPress и CMS<br>
+                &nbsp;&nbsp;• Базовый JavaScript и jQuery<br><br>
+
+                <span class="highlight">[2019]</span> Начало пути<br>
+                &nbsp;&nbsp;• Самообучение программированию<br>
+                &nbsp;&nbsp;• Первые проекты на HTML/CSS/JS<br>
+                &nbsp;&nbsp;• Участие в хакатонах
+            </div>
+        </div>
+
+        <!-- CONTACT -->
+        <div class="tmux-pane" id="contact" style="border-top: 1px solid var(--green-dark);">
+            <div class="tmux-pane-header">[5] contact</div>
+
+            <div class="section-title">// CONTACT_INFO</div>
+            <div class="prompt">ssh root@portfolio --contact</div>
+
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <div class="contact-label">[EMAIL]</div>
+                    <div class="contact-value">dev@portfolio.ru</div>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-label">[TELEGRAM]</div>
+                    <div class="contact-value">@webdev_alex</div>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-label">[GITHUB]</div>
+                    <div class="contact-value">github.com/alexdev</div>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-label">[LOCATION]</div>
+                    <div class="contact-value">Moscow, Russia</div>
+                </div>
+            </div>
+
+            <div class="prompt">echo "Давайте работать вместе!"</div>
+            <div class="output highlight">Давайте работать вместе!</div>
+        </div>
+
+        <!-- INTERACTIVE TERMINAL -->
+        <div class="tmux-pane" id="terminal" style="border-top: 1px solid var(--green-dark);">
+            <div class="tmux-pane-header">[6] bash</div>
+
+            <div class="section-title">// INTERACTIVE_SHELL</div>
+            <div class="prompt">bash --interactive</div>
+            <div class="output dim">Введите команду. Доступные: help, about, skills, projects, contact, clear, date,
+                whoami</div>
+
+            <div class="interactive-terminal" id="interactive-terminal">
+                <div class="terminal-history" id="terminal-history"></div>
+                <div class="terminal-input-line">
+                    <span class="prompt-text">root@portfolio:~$</span>
+                    <input type="text" class="terminal-input" id="terminal-input" autofocus autocomplete="off"
+                        spellcheck="false">
+                </div>
+            </div>
+        </div>
+
+        <!-- STATUS BAR -->
+        <div class="status-bar">
+            <span>● CONNECTED</span>
+            <span id="status-info">bash | UTF-8 | 120×40</span>
+            <span id="status-time"></span>
+        </div>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
+
 </html>
