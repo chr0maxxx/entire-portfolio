@@ -207,3 +207,11 @@ body {
         transform: scaleX(0);
     }
 }
+body.debug * {
+    outline: 1px dashed rgba(255, 255, 255, 0.2) !important;
+}
+body.debug .glass       { outline-color: rgba(0, 210, 255, 0.4) !important; }
+body.debug .project-card { outline-color: rgba(255, 100, 100, 0.4) !important; }
+body.debug .slide        { outline-color: rgba(100, 255, 100, 0.4) !important; }
+body.debug .feature-item { outline-color: rgba(255, 255, 0, 0.4) !important; }
+body.debug .dot          { outline-color: rgba(255, 100, 255, 0.4) !important; }
